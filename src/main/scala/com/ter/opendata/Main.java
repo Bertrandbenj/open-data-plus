@@ -1,112 +1,141 @@
 package com.ter.opendata;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.jena.graph.Triple;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.MapFunction;
+import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.storage.StorageLevel;
+
+import com.github.jsonldjava.core.RDFDataset;
+import com.github.jsonldjava.core.RDFDatasetUtils;
+import com.github.jsonldjava.impl.TurtleRDFParser;
 
 import static org.apache.spark.sql.functions.col;
+import net.sansa_stack.rdf.spark.io.NTripleReader;;
+
 public class Main {
 
-	public static void main(String[] args) {
+	public static String TEST_DATA = "src/main/resources/test.nq";
+	public static String ALL_GZ[] = {
+			"dump/dpef.html-embedded-jsonld.nq-00***.gz",
+			"dump/dpef.html-mf-adr.nq-00***.gz",
+			"dump/dpef.html-mf-geo.nq-00***.gz",
+			"dump/dpef.html-mf-hcalendar.nq-00***.gz",
+			"dump/dpef.html-mf-hcard.nq-00***.gz",
+			"dump/dpef.html-mf-hlisting.nq-00***.gz",
+			"dump/dpef.html-mf-hrecipe.nq-00***.gz",
+			"dump/dpef.html-mf-hresume.nq-00***.gz",
+			"dump/dpef.html-mf-hreview.nq-00***.gz",
+			"dump/dpef.html-mf-xfn.nq-00***.gz",
+			"dump/dpef.html-microdata.nq-00***.gz"};
+	public static String[] SAMPLE_GZ = {
+			"dump/dpef.html-embedded-jsonld.nq-00000.gz",
+			"dump/dpef.html-mf-adr.nq-00000.gz",
+			"dump/dpef.html-mf-geo.nq-00000.gz",
+			"dump/dpef.html-mf-hcalendar.nq-00000.gz",
+			"dump/dpef.html-mf-hcard.nq-00000.gz",
+			"dump/dpef.html-mf-hlisting.nq-00000.gz",
+			"dump/dpef.html-mf-hrecipe.nq-00000.gz",
+			"dump/dpef.html-mf-hresume.nq-00000.gz",
+			"dump/dpef.html-mf-hreview.nq-00000.gz",
+			"dump/dpef.html-mf-xfn.nq-00000.gz",
+			"dump/dpef.html-microdata.nq-00000.gz"};
+	
+	public static void main(String[] args) throws IOException {
+
+		keepAlive(0);
+		// Init Spark 
 		SparkSession spark = SparkSession
 				.builder()
 				.master("local[*]")
+				.config("spark.executor.memory", "3g")
 				.appName("OpenData+")
 				.getOrCreate();
+	
 		
-		JavaRDD<Quad> quad= spark.read()
-			.textFile("src/main/resources/data16.nq")
-			.toJavaRDD()
-			.map(s -> new Quad(s));
-		
-		Dataset<Row> quads = spark.createDataFrame(quad, Quad.class);
-		
-		quads.select("graph","subject","predicate","object")
-			.show(false);
-		
-		quads.as(Encoders.bean(Quad.class))
-			.filter(col("graph").like("%Punk%"))
-			.show();
-		
-		quads.write().parquet("results/parq");
+//		asJena(spark,TEST_DATA)
+//			.map(q -> q, Encoders.bean(RDFDataset.Quad.class))
+//			.show();
 		
 		
+		// overwrite the previous parquet
+		FileUtils.deleteDirectory(new File("results/parq"));
 		
-		// just so the Spark GUI stays up long enough to look at it 
+		fromRowFile(spark, SAMPLE_GZ)
+			.write()
+			//.partitionBy("graph")
+			.parquet("results/parq");
+	
+		spark.read()
+			.parquet("results/parq")
+			.select("graph","subject","predicate","object")
+			.show(50);
+
+	}
+	
+	/**
+	 * map RDD into Dataset/Dataframe/SQL
+	 * @param spark
+	 * @return
+	 */
+	public static Dataset<Quad> fromRowFile(SparkSession spark, String... file){
+		return spark.read()				
+			.textFile(file)				
+			.map(s -> Quad.Factory.build(s), Quad.enc)
+			.filter(q -> q != null)		// unfortonately spark map isn't filtering null
+			;
+	}
+	
+
+	public static RDD<Triple> fromSansaFile(SparkSession spark, String... file){
+		
+		RDD<Triple> origin = null;
+		
+		for(String f : file){
+			RDD<Triple> newRDD = NTripleReader.load(spark, new File(f));
+			origin = (origin == null)? newRDD : origin.union(newRDD);
+		}
+
+		return origin;
+	}
+	
+	
+	
+	public static Dataset<RDFDataset.Quad> asJena(SparkSession spark, String... file){
+//		RDFDatasetUtils.parseNQuads(input)
+		return spark.read()				
+				.textFile(file)	
+				.flatMap(line -> RDFDatasetUtils.parseNQuads(line).getQuads(line).iterator(), Encoders.bean(RDFDataset.Quad.class))
+				;
+	}
+	
+	/**
+	 * just so the Spark GUI stays up long enough to look at it 
+	 * @param min Minutes to keep alive
+	 */
+	public static void keepAlive(int min){
 		new Thread(()-> {
 			try{
-				Thread.sleep(5 * 60 * 1000);
+				Thread.sleep(min * 60 * 1000);
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-		}).start();
-		//Statement stmt = ResourceFactory.createStatement();
-
+		},"keepAlive").start();
 	}
-
-	static final Pattern nqMatcher = Pattern
-			.compile("(<[^\\s]+>|_:(?:[A-Za-z][A-Za-z0-9\\-_]*))\\s+(<[^\\s]+>)\\s+(<[^\\s]+>|_:(?:[A-Za-z][A-Za-z0-9\\-_]*)|\\\"(?:(?:\\\"|[^\"])*)\"(?:@(?:[a-z]+[\\-A-Za-z0-9]*)|\\^\\^<(?:[^>]+)>)?)\\s+(<[^\\s]+>).*");
 	
-	public static class Quad implements Serializable {
-		private static final long serialVersionUID = -6797868860298931115L;
-		private String graph;
-		private String subject;
-		private String predicate;
-		private String object;
-		
-		public Quad(){
-		}
-		
-		public Quad(String s){
-			this();
-			Matcher m = nqMatcher.matcher(s);
-			if(m.matches()){
-				this.graph = m.group(1);
-				this.subject = m.group(2);
-				this.predicate = m.group(3);
-				this.object = m.group(4);
-			}else{
-				System.err.println("couldn't parse : "+s);
-			}
-		}
-		
-		public Quad(String graph, String subject, String predicate, String object) {
-			setGraph (graph);
-			setSubject(subject);
-			setPredicate(predicate);
-			setObject(object);
-		}
 
-		public String getGraph() {
-			return graph;
-		}
-		public void setGraph(String graph) {
-			this.graph = graph;
-		}
-		public String getSubject() {
-			return subject;
-		}
-		public void setSubject(String subject) {
-			this.subject = subject;
-		}
-		public String getPredicate() {
-			return predicate;
-		}
-		public void setPredicate(String predicate) {
-			this.predicate = predicate;
-		}
-		public String getObject() {
-			return object;
-		}
-		public void setObject(String object) {
-			this.object = object;
-		}
-	
-	}
 }
