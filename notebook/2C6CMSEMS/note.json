@@ -1,0 +1,126 @@
+{
+  "paragraphs": [
+    {
+      "title": "https://spark.apache.org/docs/latest/ml-classification-regression.html#one-vs-rest-classifier-aka-one-vs-all",
+      "text": "import org.apache.spark.ml.classification.{LogisticRegression, OneVsRest}\nimport org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator\n\n// load data file.\nval inputData \u003d spark.read.format(\"libsvm\")\n  .load(\"iris.scale.txt\")\n  \n  inputData.show(50,false)\n  inputData.printSchema\n\n// generate the train/test split.\nval Array(train, test) \u003d inputData.randomSplit(Array(0.8, 0.2))\n\n// instantiate the base classifier\nval classifier \u003d new LogisticRegression()\n  .setMaxIter(10)\n  .setTol(1E-6)\n  .setFitIntercept(true)\n\n// instantiate the One Vs Rest Classifier.\nval ovr \u003d new OneVsRest().setClassifier(classifier)\n\n// train the multiclass model.\nval ovrModel \u003d ovr.fit(train)\n\n// score the model on test data.\nval predictions \u003d ovrModel.transform(test)\n\n// obtain evaluator.\nval evaluator \u003d new MulticlassClassificationEvaluator()\n  .setMetricName(\"accuracy\")\n\n// compute the classification error on test data.\nval accuracy \u003d evaluator.evaluate(predictions)\nprintln(s\"Test Error \u003d ${1 - accuracy}\")",
+      "dateUpdated": "Jan 31, 2017 6:14:42 PM",
+      "config": {
+        "colWidth": 6.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485084957255_-1527731261",
+      "id": "20170122-123557_1260386949",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nimport org.apache.spark.ml.classification.{LogisticRegression, OneVsRest}\n\nimport org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator\n\ninputData: org.apache.spark.sql.DataFrame \u003d [label: double, features: vector]\n+-----+--------------------------------------------------------+\n|label|features                                                |\n+-----+--------------------------------------------------------+\n|1.0  |(4,[0,1,2,3],[-0.555556,0.25,-0.864407,-0.916667])      |\n|1.0  |(4,[0,1,2,3],[-0.666667,-0.166667,-0.864407,-0.916667]) |\n|1.0  |(4,[0,2,3],[-0.777778,-0.898305,-0.916667])             |\n|1.0  |(4,[0,1,2,3],[-0.833333,-0.0833334,-0.830508,-0.916667])|\n|1.0  |(4,[0,1,2,3],[-0.611111,0.333333,-0.864407,-0.916667])  |\n|1.0  |(4,[0,1,2,3],[-0.388889,0.583333,-0.762712,-0.75])      |\n|1.0  |(4,[0,1,2,3],[-0.833333,0.166667,-0.864407,-0.833333])  |\n|1.0  |(4,[0,1,2,3],[-0.611111,0.166667,-0.830508,-0.916667])  |\n|1.0  |(4,[0,1,2,3],[-0.944444,-0.25,-0.864407,-0.916667])     |\n|1.0  |(4,[0,1,2,3],[-0.666667,-0.0833334,-0.830508,-1.0])     |\n|1.0  |(4,[0,1,2,3],[-0.388889,0.416667,-0.830508,-0.916667])  |\n|1.0  |(4,[0,1,2,3],[-0.722222,0.166667,-0.79661,-0.916667])   |\n|1.0  |(4,[0,1,2,3],[-0.722222,-0.166667,-0.864407,-1.0])      |\n|1.0  |(4,[0,1,2,3],[-1.0,-0.166667,-0.966102,-1.0])           |\n|1.0  |(4,[0,1,2,3],[-0.166667,0.666667,-0.932203,-0.916667])  |\n|1.0  |(4,[0,1,2,3],[-0.222222,1.0,-0.830508,-0.75])           |\n|1.0  |(4,[0,1,2,3],[-0.388889,0.583333,-0.898305,-0.75])      |\n|1.0  |(4,[0,1,2,3],[-0.555556,0.25,-0.864407,-0.833333])      |\n|1.0  |(4,[0,1,2,3],[-0.222222,0.5,-0.762712,-0.833333])       |\n|1.0  |(4,[0,1,2,3],[-0.555556,0.5,-0.830508,-0.833333])       |\n|1.0  |(4,[0,1,2,3],[-0.388889,0.166667,-0.762712,-0.916667])  |\n|1.0  |(4,[0,1,2,3],[-0.555556,0.416667,-0.830508,-0.75])      |\n|1.0  |(4,[0,1,2,3],[-0.833333,0.333333,-1.0,-0.916667])       |\n|1.0  |(4,[0,1,2,3],[-0.555556,0.0833333,-0.762712,-0.666667]) |\n|1.0  |(4,[0,1,2,3],[-0.722222,0.166667,-0.694915,-0.916667])  |\n|1.0  |(4,[0,1,2,3],[-0.611111,-0.166667,-0.79661,-0.916667])  |\n|1.0  |(4,[0,1,2,3],[-0.611111,0.166667,-0.79661,-0.75])       |\n|1.0  |(4,[0,1,2,3],[-0.5,0.25,-0.830508,-0.916667])           |\n|1.0  |(4,[0,1,2,3],[-0.5,0.166667,-0.864407,-0.916667])       |\n|1.0  |(4,[0,2,3],[-0.777778,-0.79661,-0.916667])              |\n|1.0  |(4,[0,1,2,3],[-0.722222,-0.0833334,-0.79661,-0.916667]) |\n|1.0  |(4,[0,1,2,3],[-0.388889,0.166667,-0.830508,-0.75])      |\n|1.0  |(4,[0,1,2,3],[-0.5,0.75,-0.830508,-1.0])                |\n|1.0  |(4,[0,1,2,3],[-0.333333,0.833333,-0.864407,-0.916667])  |\n|1.0  |(4,[0,1,2,3],[-0.666667,-0.0833334,-0.830508,-1.0])     |\n|1.0  |(4,[0,2,3],[-0.611111,-0.932203,-0.916667])             |\n|1.0  |(4,[0,1,2,3],[-0.333333,0.25,-0.898305,-0.916667])      |\n|1.0  |(4,[0,1,2,3],[-0.666667,-0.0833334,-0.830508,-1.0])     |\n|1.0  |(4,[0,1,2,3],[-0.944444,-0.166667,-0.898305,-0.916667]) |\n|1.0  |(4,[0,1,2,3],[-0.555556,0.166667,-0.830508,-0.916667])  |\n|1.0  |(4,[0,1,2,3],[-0.611111,0.25,-0.898305,-0.833333])      |\n|1.0  |(4,[0,1,2,3],[-0.888889,-0.75,-0.898305,-0.833333])     |\n|1.0  |(4,[0,2,3],[-0.944444,-0.898305,-0.916667])             |\n|1.0  |(4,[0,1,2,3],[-0.611111,0.25,-0.79661,-0.583333])       |\n|1.0  |(4,[0,1,2,3],[-0.555556,0.5,-0.694915,-0.75])           |\n|1.0  |(4,[0,1,2,3],[-0.722222,-0.166667,-0.864407,-0.833333]) |\n|1.0  |(4,[0,1,2,3],[-0.555556,0.5,-0.79661,-0.916667])        |\n|1.0  |(4,[0,2,3],[-0.833333,-0.864407,-0.916667])             |\n|1.0  |(4,[0,1,2,3],[-0.444444,0.416667,-0.830508,-0.916667])  |\n|1.0  |(4,[0,1,2,3],[-0.611111,0.0833333,-0.864407,-0.916667]) |\n+-----+--------------------------------------------------------+\nonly showing top 50 rows\n\nroot\n |-- label: double (nullable \u003d true)\n |-- features: vector (nullable \u003d true)\n\n\n\ntrain: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [label: double, features: vector]\ntest: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [label: double, features: vector]\n\nclassifier: org.apache.spark.ml.classification.LogisticRegression \u003d logreg_a7d046bd498d\n\novr: org.apache.spark.ml.classification.OneVsRest \u003d oneVsRest_b33dd6d0a2fa\n\novrModel: org.apache.spark.ml.classification.OneVsRestModel \u003d oneVsRest_b33dd6d0a2fa\n\npredictions: org.apache.spark.sql.DataFrame \u003d [label: double, features: vector ... 1 more field]\n\nevaluator: org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator \u003d mcEval_e41b7f5990af\n\naccuracy: Double \u003d 1.0\nTest Error \u003d 0.0\n"
+      },
+      "dateCreated": "Jan 22, 2017 12:35:57 PM",
+      "dateStarted": "Jan 31, 2017 6:14:42 PM",
+      "dateFinished": "Jan 31, 2017 6:14:46 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "import org.apache.spark.ml.Pipeline\nimport org.apache.spark.ml.classification.{GBTClassificationModel, GBTClassifier}\nimport org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator\nimport org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}\n\n// Load and parse the data file, converting it to a DataFrame.\nval data \u003d spark.read.format(\"libsvm\").load(\"iris.scale.txt\")\n\n// Index labels, adding metadata to the label column.\n// Fit on whole dataset to include all labels in index.\nval labelIndexer \u003d new StringIndexer()\n  .setInputCol(\"label\")\n  .setOutputCol(\"indexedLabel\")\n  .fit(data)\n// Automatically identify categorical features, and index them.\n// Set maxCategories so features with \u003e 4 distinct values are treated as continuous.\nval featureIndexer \u003d new VectorIndexer()\n  .setInputCol(\"features\")\n  .setOutputCol(\"indexedFeatures\")\n  .setMaxCategories(4)\n  .fit(data)\n\n// Split the data into training and test sets (30% held out for testing).\nval Array(trainingData, testData) \u003d data.randomSplit(Array(0.7, 0.3))\n\n// Train a GBT model.\nval gbt \u003d new GBTClassifier()\n  .setLabelCol(\"indexedLabel\")\n  .setFeaturesCol(\"indexedFeatures\")\n  .setMaxIter(10)\n\n// Convert indexed labels back to original labels.\nval labelConverter \u003d new IndexToString()\n  .setInputCol(\"prediction\")\n  .setOutputCol(\"predictedLabel\")\n  .setLabels(labelIndexer.labels)\n\n// Chain indexers and GBT in a Pipeline.\nval pipeline \u003d new Pipeline()\n  .setStages(Array(labelIndexer, featureIndexer, gbt, labelConverter))\n\n// Train model. This also runs the indexers.\nval model \u003d pipeline.fit(trainingData)\n\n// Make predictions.\nval predictions \u003d model.transform(testData)\n\n// Select example rows to display.\npredictions.select(\"predictedLabel\", \"label\", \"features\").show(5)\n\n// Select (prediction, true label) and compute test error.\nval evaluator \u003d new MulticlassClassificationEvaluator()\n  .setLabelCol(\"indexedLabel\")\n  .setPredictionCol(\"prediction\")\n  .setMetricName(\"accuracy\")\nval accuracy \u003d evaluator.evaluate(predictions)\nprintln(\"Test Error \u003d \" + (1.0 - accuracy))\n\nval gbtModel \u003d model.stages(2).asInstanceOf[GBTClassificationModel]\nprintln(\"Learned classification GBT model:\\n\" + gbtModel.toDebugString)",
+      "dateUpdated": "Jan 22, 2017 3:44:59 AM",
+      "config": {
+        "colWidth": 6.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorHide": false,
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485095614341_1442422013",
+      "id": "20170122-153334_1837536306",
+      "result": {
+        "code": "ERROR",
+        "type": "TEXT",
+        "msg": "\nimport org.apache.spark.ml.Pipeline\n\nimport org.apache.spark.ml.classification.{GBTClassificationModel, GBTClassifier}\n\nimport org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator\n\nimport org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}\n\ndata: org.apache.spark.sql.DataFrame \u003d [label: double, features: vector]\n\nlabelIndexer: org.apache.spark.ml.feature.StringIndexerModel \u003d strIdx_10befced2aa1\n\nfeatureIndexer: org.apache.spark.ml.feature.VectorIndexerModel \u003d vecIdx_266366d34420\n\n\ntrainingData: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [label: double, features: vector]\ntestData: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [label: double, features: vector]\n\ngbt: org.apache.spark.ml.classification.GBTClassifier \u003d gbtc_e5fdba57777b\n\nlabelConverter: org.apache.spark.ml.feature.IndexToString \u003d idxToStr_49778d8eca7a\n\npipeline: org.apache.spark.ml.Pipeline \u003d pipeline_a5d702b57570\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\norg.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 266.0 failed 1 times, most recent failure: Lost task 0.0 in stage 266.0 (TID 8201, localhost): java.lang.IllegalArgumentException: requirement failed: GBTClassifier was given dataset with invalid label 2.0.  Labels must be in {0,1}; note that GBTClassifier currently only supports binary classification.\n\tat scala.Predef$.require(Predef.scala:224)\n\tat org.apache.spark.ml.classification.GBTClassifier$$anonfun$1.apply(GBTClassifier.scala:133)\n\tat org.apache.spark.ml.classification.GBTClassifier$$anonfun$1.apply(GBTClassifier.scala:131)\n\tat scala.collection.Iterator$$anon$11.next(Iterator.scala:409)\n\tat scala.collection.Iterator$$anon$11.next(Iterator.scala:409)\n\tat org.apache.spark.storage.memory.MemoryStore.putIteratorAsValues(MemoryStore.scala:214)\n\tat org.apache.spark.storage.BlockManager$$anonfun$doPutIterator$1.apply(BlockManager.scala:919)\n\tat org.apache.spark.storage.BlockManager$$anonfun$doPutIterator$1.apply(BlockManager.scala:910)\n\tat org.apache.spark.storage.BlockManager.doPut(BlockManager.scala:866)\n\tat org.apache.spark.storage.BlockManager.doPutIterator(BlockManager.scala:910)\n\tat org.apache.spark.storage.BlockManager.getOrElseUpdate(BlockManager.scala:668)\n\tat org.apache.spark.rdd.RDD.getOrCompute(RDD.scala:330)\n\tat org.apache.spark.rdd.RDD.iterator(RDD.scala:281)\n\tat org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:38)\n\tat org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:319)\n\tat org.apache.spark.rdd.RDD.iterator(RDD.scala:283)\n\tat org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:38)\n\tat org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:319)\n\tat org.apache.spark.rdd.RDD.iterator(RDD.scala:283)\n\tat org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:70)\n\tat org.apache.spark.scheduler.Task.run(Task.scala:85)\n\tat org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:274)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\n\tat java.lang.Thread.run(Thread.java:745)\n\nDriver stacktrace:\n  at org.apache.spark.scheduler.DAGScheduler.org$apache$spark$scheduler$DAGScheduler$$failJobAndIndependentStages(DAGScheduler.scala:1450)\n  at org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:1438)\n  at org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:1437)\n  at scala.collection.mutable.ResizableArray$class.foreach(ResizableArray.scala:59)\n  at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:48)\n  at org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:1437)\n  at org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:811)\n  at org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:811)\n  at scala.Option.foreach(Option.scala:257)\n  at org.apache.spark.scheduler.DAGScheduler.handleTaskSetFailed(DAGScheduler.scala:811)\n  at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:1659)\n  at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:1618)\n  at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:1607)\n  at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:48)\n  at org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:632)\n  at org.apache.spark.SparkContext.runJob(SparkContext.scala:1871)\n  at org.apache.spark.SparkContext.runJob(SparkContext.scala:1884)\n  at org.apache.spark.SparkContext.runJob(SparkContext.scala:1897)\n  at org.apache.spark.rdd.RDD$$anonfun$take$1.apply(RDD.scala:1305)\n  at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)\n  at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:112)\n  at org.apache.spark.rdd.RDD.withScope(RDD.scala:358)\n  at org.apache.spark.rdd.RDD.take(RDD.scala:1279)\n  at org.apache.spark.ml.tree.impl.DecisionTreeMetadata$.buildMetadata(DecisionTreeMetadata.scala:112)\n  at org.apache.spark.ml.tree.impl.RandomForest$.run(RandomForest.scala:105)\n  at org.apache.spark.ml.regression.DecisionTreeRegressor.train(DecisionTreeRegressor.scala:107)\n  at org.apache.spark.ml.tree.impl.GradientBoostedTrees$.boost(GradientBoostedTrees.scala:293)\n  at org.apache.spark.ml.tree.impl.GradientBoostedTrees$.run(GradientBoostedTrees.scala:53)\n  at org.apache.spark.ml.classification.GBTClassifier.train(GBTClassifier.scala:140)\n  at org.apache.spark.ml.classification.GBTClassifier.train(GBTClassifier.scala:59)\n  at org.apache.spark.ml.Predictor.fit(Predictor.scala:90)\n  at org.apache.spark.ml.Predictor.fit(Predictor.scala:71)\n  at org.apache.spark.ml.Pipeline$$anonfun$fit$2.apply(Pipeline.scala:149)\n  at org.apache.spark.ml.Pipeline$$anonfun$fit$2.apply(Pipeline.scala:145)\n  at scala.collection.Iterator$class.foreach(Iterator.scala:893)\n  at scala.collection.AbstractIterator.foreach(Iterator.scala:1336)\n  at scala.collection.IterableViewLike$Transformed$class.foreach(IterableViewLike.scala:44)\n  at scala.collection.SeqViewLike$AbstractTransformed.foreach(SeqViewLike.scala:37)\n  at org.apache.spark.ml.Pipeline.fit(Pipeline.scala:145)\n  ... 90 elided\nCaused by: java.lang.IllegalArgumentException: requirement failed: GBTClassifier was given dataset with invalid label 2.0.  Labels must be in {0,1}; note that GBTClassifier currently only supports binary classification.\n  at scala.Predef$.require(Predef.scala:224)\n  at org.apache.spark.ml.classification.GBTClassifier$$anonfun$1.apply(GBTClassifier.scala:133)\n  at org.apache.spark.ml.classification.GBTClassifier$$anonfun$1.apply(GBTClassifier.scala:131)\n  at scala.collection.Iterator$$anon$11.next(Iterator.scala:409)\n  at scala.collection.Iterator$$anon$11.next(Iterator.scala:409)\n  at org.apache.spark.storage.memory.MemoryStore.putIteratorAsValues(MemoryStore.scala:214)\n  at org.apache.spark.storage.BlockManager$$anonfun$doPutIterator$1.apply(BlockManager.scala:919)\n  at org.apache.spark.storage.BlockManager$$anonfun$doPutIterator$1.apply(BlockManager.scala:910)\n  at org.apache.spark.storage.BlockManager.doPut(BlockManager.scala:866)\n  at org.apache.spark.storage.BlockManager.doPutIterator(BlockManager.scala:910)\n  at org.apache.spark.storage.BlockManager.getOrElseUpdate(BlockManager.scala:668)\n  at org.apache.spark.rdd.RDD.getOrCompute(RDD.scala:330)\n  at org.apache.spark.rdd.RDD.iterator(RDD.scala:281)\n  at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:38)\n  at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:319)\n  at org.apache.spark.rdd.RDD.iterator(RDD.scala:283)\n  at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:38)\n  at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:319)\n  at org.apache.spark.rdd.RDD.iterator(RDD.scala:283)\n  at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:70)\n  at org.apache.spark.scheduler.Task.run(Task.scala:85)\n  at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:274)\n  ... 3 more\n"
+      },
+      "dateCreated": "Jan 22, 2017 3:33:34 AM",
+      "dateStarted": "Jan 22, 2017 3:38:14 AM",
+      "dateFinished": "Jan 22, 2017 3:38:19 AM",
+      "status": "ERROR",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "",
+      "dateUpdated": "Jan 22, 2017 3:38:23 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485095882859_915683800",
+      "id": "20170122-153802_1824460699",
+      "dateCreated": "Jan 22, 2017 3:38:02 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "LearNantes",
+  "id": "2C6CMSEMS",
+  "angularObjects": {
+    "2C8HHURCR:shared_process": [],
+    "2C8NZDHJ5:shared_process": [],
+    "2C5FTUSC4:shared_process": [],
+    "2C8Z7PJTV:shared_process": [],
+    "2C6F57Q8V:shared_process": [],
+    "2C8XRF9RX:shared_process": [],
+    "2C7CYJ129:shared_process": [],
+    "2C6EVCBVU:shared_process": [],
+    "2C8Q1YWC3:shared_process": [],
+    "2C5YW56B4:shared_process": [],
+    "2C5V72FR6:shared_process": [],
+    "2C7JSSPM2:shared_process": [],
+    "2C5M2RA8J:shared_process": [],
+    "2C5J6E164:shared_process": [],
+    "2C9D71WWC:shared_process": [],
+    "2C7WUM3K8:shared_process": [],
+    "2C86612AJ:shared_process": [],
+    "2C88D5QB1:shared_process": []
+  },
+  "config": {},
+  "info": {}
+}
