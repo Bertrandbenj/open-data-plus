@@ -1,8 +1,8 @@
 # Capstone project Open Data Plus
 Extraction techniques used to find content related to Nantes in Web Data Commons.
 
-* [Read & Convert raw data](https://bertrandbenj.github.io/open-data-plus/public/Convert.html)
-* [NantiCrawl](https://bertrandbenj.github.io/open-data-plus/public/NantiCrawl.html)
+* [Read & Convert raw data](https://www.zeppelinhub.com/viewer/notebooks/bm90ZTovL2JlcnRyYW5kYmVuai9OYW50aUNyYXdsLzJjMzJlYTRkNWM1YzQ0NmZhYmNhNzc5NDQ0MTQ2NzUzL25vdGUuanNvbg)
+* [NantiCrawl](https://www.zeppelinhub.com/viewer/notebooks/bm90ZTovL2JlcnRyYW5kYmVuai9OYW50aUNyYXdsLzdlNTMxMTM0ZmFkMjQ2NzA4ZTgxNWZlNmYyZGQ2MDFkL25vdGUuanNvbg)
 
 # Table of contents
 * [Prerequisites](#prerequisites)
