@@ -1,4 +1,4 @@
-package com.ter.opendata;
+package ter.opendata;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 

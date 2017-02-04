@@ -1,4 +1,4 @@
-package com.ter.opendata;
+package ter.opendata;
 
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.rdd.RDD;

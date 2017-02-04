@@ -1,4 +1,4 @@
-package com.ter.opendata;
+package ter.opendata;
 
 import java.io.File;
 import java.io.IOException;

@@ -1872,13 +1872,7 @@
     }), a.logout = function() {
         var a = g.getRestApiBase() + "/login/logout";
         a = a.replace("//", "//false:false@"), c.post(a).error(function() {
-            c.post(a).error(function() {
-                b.userName = "", b.ticket.principal = "", b.ticket.ticket = "", b.ticket.roles = "", BootstrapDialog.show({
-                    message: "Logout Success"
-                }), setTimeout(function() {
-                    window.location.replace("/")
-                }, 1e3)
-            })
+            c.post(a).error(function() {})
         })
     }, a.search = function(a) {
         e.url(/search/ + a)
